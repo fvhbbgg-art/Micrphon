@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ركن الهدوء الذكي</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#eef3f1; --panel:#ffffff; --ink:#16302b; --muted:#5b7670; --line:#d3e0dc;
+  --off:#cdd9d5; --g:#1fa971; --y:#f2b52c; --r:#e5484d; --accent:#0f6b5c;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1a18; --panel:#162724; --ink:#e6f2ef; --muted:#92b0a9; --line:#264039; --off:#2a3f3a; --accent:#5fd3bc;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1a18; --panel:#162724; --ink:#e6f2ef; --muted:#92b0a9; --line:#264039; --off:#2a3f3a; --accent:#5fd3bc;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Tajawal",Tahoma,"Segoe UI",sans-serif;min-height:100%;line-height:1.6}
+main{max-width:760px;margin:0 auto;padding:20px 16px 32px}
+h1{font-size:1.6rem;font-weight:800;margin:0 0 4px}
+.sub{color:var(--muted);margin:0 0 20px}
+.stage{display:grid;grid-template-columns:120px 1fr;gap:20px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:20px}
+.light{display:flex;flex-direction:column;gap:12px;background:#10201d;padding:14px;border-radius:60px;align-items:center}
+.lamp{width:76px;height:76px;border-radius:50%;background:var(--off);opacity:.35;transition:opacity .2s,box-shadow .2s,background .2s}
+.light[data-s="g"] .lamp.g{background:var(--g);opacity:1;box-shadow:0 0 34px var(--g)}
+.light[data-s="y"] .lamp.y{background:var(--y);opacity:1;box-shadow:0 0 34px var(--y)}
+.light[data-s="r"] .lamp.r{background:var(--r);opacity:1;box-shadow:0 0 34px var(--r)}
+.status{font-size:2rem;font-weight:800;margin:0}
+.light[data-s="g"]~.info .status{color:var(--g)}
+.light[data-s="y"]~.info .status{color:#b88100}
+.light[data-s="r"]~.info .status{color:var(--r)}
+.hint{color:var(--muted);margin:2px 0 16px}
+.bar{height:18px;border-radius:9px;background:var(--off);position:relative;overflow:hidden}
+.fill{position:absolute;inset:0 auto 0 0;width:0;background:var(--g);transition:width .08s linear,background .2s}
+[dir=rtl] .fill{inset:0 0 0 auto}
+.mark{position:absolute;top:0;bottom:0;width:3px;background:var(--ink);opacity:.7}
+.db{font-size:.95rem;color:var(--muted);margin-top:6px}
+.controls{margin-top:16px;display:grid;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px}
+label{display:flex;justify-content:space-between;font-weight:700}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+button{font:inherit;font-weight:700;border:0;border-radius:12px;padding:12px 18px;background:var(--accent);color:#fff;cursor:pointer;min-height:44px}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) button{color:#06211c}}
+:root[data-theme="dark"] button{color:#06211c}
+button.alt{background:transparent;color:var(--ink);border:1px solid var(--line)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--y);outline-offset:2px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px}
+.stat b{display:block;font-size:1.7rem}
+.stat span{color:var(--muted);font-size:.9rem}
+.err{color:var(--r);font-weight:700;margin-top:10px;display:none}
+body.full main{max-width:none}
+body.full .controls>div:not(.row),body.full .stats,body.full h1,body.full .sub{display:none}
+body.full .controls{border:0;background:none;padding:0}
+body.full .stage{min-height:80vh;grid-template-columns:200px 1fr}
+body.full .lamp{width:120px;height:120px}
+body.full .status{font-size:3.4rem}
+@media (max-width:520px){.stage{grid-template-columns:96px 1fr;gap:14px;padding:14px}.lamp{width:60px;height:60px}.status{font-size:1.5rem}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <h1>ركن الهدوء الذكي</h1>
+  <p class="sub">يقيس مستوى الصوت في المكان ويعرضه بإشارة ضوئية يفهمها الجميع.</p>
+
+  <section class="stage" aria-live="polite">
+    <div class="light" id="light" data-s="">
+      <div class="lamp r"></div><div class="lamp y"></div><div class="lamp g"></div>
+    </div>
+    <div class="info">
+      <p class="status" id="status">اضغط «ابدأ القياس»</p>
+      <p class="hint" id="hint">سيطلب المتصفح إذن الميكروفون.</p>
+      <div class="bar"><div class="fill" id="fill"></div><div class="mark" id="mark"></div></div>
+      <div class="db" id="db">—</div>
+      <div class="err" id="err"></div>
+    </div>
+  </section>
+
+  <section class="controls">
+    <div class="row">
+      <button id="start">ابدأ القياس</button>
+      <button class="alt" id="full">شاشة كاملة</button>
+      <button class="alt" id="reset">تصفير الإحصاءات</button>
+    </div>
+    <div>
+      <label for="limit"><span>حدّ الإنذار الأحمر</span><span id="limitv">60</span></label>
+      <input type="range" id="limit" min="20" max="95" value="60">
+    </div>
+    <div>
+      <label for="gain"><span>حساسية الميكروفون</span><span id="gainv">50</span></label>
+      <input type="range" id="gain" min="10" max="90" value="50">
+    </div>
+  </section>
+
+  <section class="stats">
+    <div class="stat"><b id="reds">0</b><span>مرات ارتفاع الصوت</span></div>
+    <div class="stat"><b id="calm">0٪</b><span>نسبة وقت الهدوء</span></div>
+  </section>
+</main>
+
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i)};
+  var light=$('light'),fill=$('fill'),mark=$('mark'),stEl=$('status'),hint=$('hint'),dbEl=$('db'),err=$('err');
+  var limit=$('limit'),gain=$('gain');
+  var ctx,analyser,buf,stream,raf,running=false,level=0,state='',redCount=0,tot=0,calmT=0,last=0;
+  var MSG={
+    g:['الهدوء ممتاز','شكرًا لكم على التزامكم.'],
+    y:['الصوت يرتفع','يرجى خفض الصوت قليلًا.'],
+    r:['يرجى الهدوء','الصوت مرتفع على ركن الدراسة.']
+  };
+  var ar=function(n){return String(n).replace(/\d/g,function(d){return '٠١٢٣٤٥٦٧٨٩'[d]})};
+
+  function place(){mark.style.right=limit.value+'%';$('limitv').textContent=ar(limit.value);$('gainv').textContent=ar(gain.value)}
+  limit.oninput=gain.oninput=place;place();
+
+  function set(s){
+    if(s===state)return;
+    if(s==='r')redCount++;
+    state=s;light.dataset.s=s;
+    stEl.textContent=MSG[s][0];hint.textContent=MSG[s][1];
+    fill.style.background=s==='g'?'var(--g)':s==='y'?'var(--y)':'var(--r)';
+    $('reds').textContent=ar(redCount);
+  }
+
+  function tick(t){
+    if(!running)return;
+    analyser.getFloatTimeDomainData(buf);
+    var sum=0;for(var i=0;i<buf.length;i++)sum+=buf[i]*buf[i];
+    var rms=Math.sqrt(sum/buf.length)||1e-8;
+    var d=20*Math.log10(rms);              // dBFS
+    var boost=(gain.value-50)*0.6;          // calibration offset
+    var raw=Math.max(0,Math.min(100,(d+75+boost)/75*100));
+    level+= (raw>level?0.5:0.08)*(raw-level);   // quick rise, slow fall
+    fill.style.width=level.toFixed(1)+'%';
+    dbEl.textContent='المستوى: '+ar(Math.round(level))+' / ١٠٠';
+    var L=+limit.value, s=level>=L?'r':level>=L*0.7?'y':'g';
+    set(s);
+    var dt=last?t-last:0;last=t;tot+=dt;if(s==='g')calmT+=dt;
+    if(tot>0)$('calm').textContent=ar(Math.round(calmT/tot*100))+'٪';
+    raf=requestAnimationFrame(tick);
+  }
+
+  async function start(){
+    err.style.display='none';
+    try{
+      stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
+    }catch(e){
+      err.textContent='تعذّر الوصول إلى الميكروفون. اسمحي بالإذن من إعدادات المتصفح ثم أعيدي المحاولة.';
+      err.style.display='block';return;
+    }
+    ctx=new (window.AudioContext||window.webkitAudioContext)();
+    var src=ctx.createMediaStreamSource(stream);
+    analyser=ctx.createAnalyser();analyser.fftSize=2048;
+    buf=new Float32Array(analyser.fftSize);src.connect(analyser);
+    running=true;last=0;$('start').textContent='إيقاف القياس';
+    raf=requestAnimationFrame(tick);
+  }
+  function stop(){
+    running=false;cancelAnimationFrame(raf);
+    if(stream)stream.getTracks().forEach(function(t){t.stop()});
+    if(ctx)ctx.close();
+    $('start').textContent='ابدأ القياس';light.dataset.s='';state='';
+    stEl.textContent='تم الإيقاف';hint.textContent='اضغط «ابدأ القياس» للمتابعة.';fill.style.width='0';dbEl.textContent='—';
+  }
+  $('start').onclick=function(){running?stop():start()};
+  $('reset').onclick=function(){redCount=0;tot=0;calmT=0;$('reds').textContent='٠';$('calm').textContent='٠٪'};
+  $('full').onclick=function(){
+    document.body.classList.toggle('full');
+    var f=document.body.classList.contains('full');
+    $('full').textContent=f?'خروج':'شاشة كاملة';
+    if(f&&document.documentElement.requestFullscreen){document.documentElement.requestFullscreen().catch(function(){})}
+    else if(!f&&document.fullscreenElement){document.exitFullscreen()}
+  };
+  document.addEventListener('fullscreenchange',function(){
+    if(!document.fullscreenElement&&document.body.classList.contains('full')){document.body.classList.remove('full');$('full').textContent='شاشة كاملة'}
+  });
+})();
+</script>
+</body>
+</html>
